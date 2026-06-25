@@ -1,20 +1,16 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import JobCard from '@/components/jobs/JobCard'
 import FloatingNovaChat from '@/components/FloatingNovaChat'
-import JobSquareCard from '@/components/jobs/JobSquareCard'
+import DirectHireBoard from '@/components/jobs/DirectHireBoard'
+import DirectHireCta from '@/components/jobs/DirectHireCta'
 import type { Job } from '@/components/jobs/types'
-import type { JSItem } from '@/components/jobs/jobSquareTypes'
 import {
   AlertCtaButton,
   AutoApplyToggleButton,
-  ContactModalCloseButton,
-  ContactModalCopyButton,
-  ContactModalRegenButton,
   FilterDropdownButton,
   FilterPanelOptionButton,
   HeaderTabButton,
-  JobSquarePostButton,
   LocationChipRemoveButton,
   LocationQuickPickButton,
   LocationResetIconButton,
@@ -63,228 +59,6 @@ const AUTO_APPS: AutoApp[] = [
   { id: 4, title: 'UI Engineer', company: 'Notion', companyColor: '#000000', status: 'applied', date: '15m ago', salary: '$110k–$140k' },
   { id: 5, title: 'Full Stack Dev', company: 'Railway', companyColor: '#7b2bf9', status: 'applied', date: '22m ago', salary: '$100k–$130k' },
 ]
-
-/** Direct hire 地点与 Recommend Jobs 一致：美国为 City, ST；国际为 City, Region, Country；多地点用「 / 」 */
-const JOB_SQUARE: JSItem[] = [
-  { id: 1, source: 'linkedin', manager: { name: 'Sarah Chen', title: 'Head of Engineering', initials: 'SC', color: '#ddd6fe' }, company: 'Agency AI', companyInitials: 'A', companyColor: '#7c3aed', role: 'Founding AI Engineer', signal: { kind: 'founding', label: 'Founding', sub: '$200K–$280K + Equity' }, location: 'San Francisco, CA', salary: '$200K–$260K', posted: '2d ago' },
-  { id: 2, source: 'linkedin', manager: { name: 'David Kim', title: 'Head of Research', initials: 'DK', color: '#bfdbfe' }, company: 'Cognition', companyInitials: 'C', companyColor: '#2563eb', role: 'Sr. Research Scientist', signal: { kind: 'hiring-fast', label: 'Hiring Fast', sub: 'Leading 6th new projects' }, location: 'Palo Alto, CA / London, England, UK', salary: '$200K + Equity', posted: '1w ago' },
-  { id: 3, source: 'platform', manager: { name: 'Emily Nguyen', title: 'Head of ML', initials: 'EN', color: '#fde68a' }, company: 'Zoox', companyInitials: 'Z', companyColor: '#d97706', role: 'ML Infrastructure Lead', signal: { kind: 'new-team', label: 'New Team', sub: 'Building fast, 5 engineers' }, location: 'Foster City, CA', salary: '$650K+', posted: '3d ago' },
-  { id: 4, source: 'platform', manager: { name: 'Jessica Lee', title: 'Head of Product', initials: 'JL', color: '#bbf7d0' }, company: 'Barrios A2I', companyInitials: 'B', companyColor: '#16a34a', role: 'AI Product Manager', signal: { kind: 'expansion', label: 'Expansion', sub: 'Updating to new markets' }, location: 'New York, NY', salary: '$280K + Equity', posted: '4d ago' },
-  { id: 5, source: 'linkedin', manager: { name: 'Alex Rivera', title: 'Head of Data', initials: 'AR', color: '#e0e7ff' }, company: 'Robust.AI', companyInitials: 'R', companyColor: '#4f46e5', role: 'Lead Data Scientist', signal: { kind: 'founding', label: 'Founding', sub: 'Replacing key engineer' }, location: 'Berlin, Berlin, Germany', salary: '$200K + Equity', posted: 'Today' },
-]
-
-// ── Contact modal ────────────────────────────────────────────────────
-const USER = { name: 'Alex Johnson', title: 'Senior Full Stack Engineer', exp: '5 years' }
-
-function buildMessages(item: JSItem): string[] {
-  const first = item.manager.name.split(' ')[0]
-  const { role, company, signal } = item
-  if (signal.kind === 'founding') return [
-    `Hi ${first}! I came across the ${role} opportunity at ${company} and couldn't scroll past it — founding-stage roles with real equity upside are exactly what I've been holding out for.\n\nI'm ${USER.name}, a ${USER.title} with ${USER.exp} building production systems end-to-end. I'd love a quick 15-min call to see if there's a fit. Would that work?`,
-    `Hey ${first} — the ${role} listing at ${company} caught my eye straight away. ${signal.sub} is a strong signal and the kind of early-stage bet I'm actively looking for.\n\nI bring ${USER.exp} of hands-on engineering across the full stack. Happy to share my work or jump on a call whenever you're free.`,
-    `Hi ${first}! Saw you're building the founding team at ${company} for the ${role} role. ${signal.sub} — that's the story I want to be part of.\n\nI'm ${USER.name}, ${USER.title} with ${USER.exp}. Would love to connect and learn more about the team's direction.`,
-  ]
-  if (signal.kind === 'hiring-fast') return [
-    `Hi ${first}! ${company} is clearly moving fast — the ${role} role and "${signal.sub}" tells me you need someone who can hit the ground running.\n\nI'm ${USER.name}, ${USER.title} with ${USER.exp}. I thrive in high-velocity environments. Worth a quick chat?`,
-    `Hey ${first} — saw ${company} is hiring fast for ${role}. Speed matters and so does fit. I'm ${USER.name}, a ${USER.title} with ${USER.exp} who's used to shipping in fast-moving teams.\n\nWould love to connect if the timing works.`,
-    `Hi ${first}! The ${role} role at ${company} jumped out at me — ${signal.sub} signals a team that moves with intention. I love that.\n\nI'm ${USER.name} with ${USER.exp} of experience. Happy to do a quick intro call on your schedule.`,
-  ]
-  if (signal.kind === 'new-team') return [
-    `Hi ${first}! Building a new team at ${company} from scratch for ${role} — that's exactly the kind of 0→1 challenge I've been looking for.\n\nI'm ${USER.name}, ${USER.title} with ${USER.exp}. ${signal.sub}. I'd love to be part of that story. Open to a quick call?`,
-    `Hey ${first} — a brand-new team, ${role}, at ${company}. ${signal.sub} — I'm in.\n\nI'm ${USER.name} with ${USER.exp} building teams and systems from the ground up. Would love to connect.`,
-    `Hi ${first}! Spotted the ${role} opportunity at ${company} — ${signal.sub} is the kind of mandate where I do my best work.\n\nI'm ${USER.name}, ${USER.title} with ${USER.exp}. Let's find 15 minutes to chat?`,
-  ]
-  return [
-    `Hi ${first}! The ${role} role at ${company} aligns really well with where I want to go next — ${signal.sub} resonates a lot.\n\nI'm ${USER.name}, ${USER.title} with ${USER.exp}. Would love to connect and hear more about the team's direction.`,
-    `Hey ${first} — saw ${company} is expanding into new territory with ${role}. ${signal.sub} sounds like meaningful work.\n\nI'm ${USER.name} with ${USER.exp} and would love a quick chat to explore if there's a fit.`,
-    `Hi ${first}! ${signal.sub} at ${company} caught my attention. I'm ${USER.name}, ${USER.title} with ${USER.exp} of relevant experience.\n\nHappy to share more — would a short intro call work?`,
-  ]
-}
-
-function ContactModal({ item, onClose }: { item: JSItem; onClose: () => void }) {
-  const [variant, setVariant]   = useState(0)
-  const [isTyping, setIsTyping] = useState(true)
-  const [msg, setMsg]           = useState('')
-  const [copied, setCopied]     = useState(false)
-  const overlayRef              = useRef<HTMLDivElement>(null)
-  const messages                = buildMessages(item)
-
-  useEffect(() => {
-    const fullMsg = messages[variant % messages.length]
-    setMsg('')
-    setIsTyping(true)
-    let startTimer: ReturnType<typeof setTimeout>
-    const raf = { id: null as ReturnType<typeof setTimeout> | null }
-
-    startTimer = setTimeout(() => {
-      let i = 0
-      const tick = () => {
-        const progress = i / fullMsg.length
-        // Burst-style: slow ramp-up → fast middle → gentle taper — mirrors real LLM streaming
-        const chunk = progress < 0.06 ? 1 : progress > 0.9 ? 3 : 7
-        // Brief beat at sentence boundaries for natural rhythm
-        const prevChar = fullMsg[i - 1] ?? ''
-        const atBoundary = '.!?\n'.includes(prevChar) && i > 4
-        const delay = atBoundary ? 90 + Math.random() * 60 : 12 + Math.random() * 8
-
-        i += chunk
-        if (i >= fullMsg.length) {
-          setMsg(fullMsg)
-          setIsTyping(false)
-        } else {
-          setMsg(fullMsg.slice(0, i))
-          raf.id = setTimeout(tick, delay)
-        }
-      }
-      tick()
-    }, 280)
-
-    return () => {
-      clearTimeout(startTimer)
-      if (raf.id) clearTimeout(raf.id)
-    }
-  }, [variant])
-
-  // close on overlay click
-  const handleOverlay = (e: React.MouseEvent) => {
-    if (e.target === overlayRef.current) onClose()
-  }
-
-  const copy = () => {
-    navigator.clipboard.writeText(msg)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  return (
-    <div className="cm-overlay" ref={overlayRef} onClick={handleOverlay}>
-      <div className="cm-card">
-        {/* Header */}
-        <div className="cm-header">
-          <div className="cm-manager-row">
-            <div className="cm-av" style={{ background: item.manager.color }}>{item.manager.initials}</div>
-            <div className="cm-manager-info">
-              <p className="cm-manager-name">{item.manager.name}</p>
-              <p className="cm-manager-title">{item.manager.title} · {item.company}</p>
-            </div>
-          </div>
-          <ContactModalCloseButton onClick={onClose} />
-        </div>
-
-        {/* Job chip */}
-        <div className="cm-job-chip">
-          <span className="cm-job-role">{item.role}</span>
-        </div>
-
-        {/* Message */}
-        <div className={`cm-msg-wrap${isTyping ? ' is-typing' : ''}`}>
-          {isTyping ? (
-            <div className="cm-typeout" aria-live="polite">
-              {msg}<span className="cm-cursor" aria-hidden="true" />
-            </div>
-          ) : (
-            <textarea
-              className="cm-textarea"
-              value={msg}
-              onChange={e => setMsg(e.target.value)}
-              rows={9}
-            />
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="cm-footer">
-          <ContactModalRegenButton onClick={() => setVariant(v => v + 1)} disabled={isTyping} />
-          <div className="cm-footer-right">
-            <ContactModalCopyButton copied={copied} onClick={copy} disabled={isTyping} />
-            <a
-              className="cm-open"
-              href={item.source === 'linkedin' ? 'https://linkedin.com' : '#'}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {item.source === 'linkedin' ? (
-                <><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>Message on LinkedIn</>
-
-              ) : (
-                <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Contact them</>
-              )}
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-const TOP_COMPANIES = [
-  { name: 'Anthropic',  initials: 'An', color: '#f97316', roles: 4, source: 'platform' },
-  { name: 'Stripe',     initials: 'St', color: '#6366f1', roles: 3, source: 'platform' },
-  { name: 'Vercel',     initials: 'Ve', color: '#171717', roles: 2, source: 'linkedin' },
-  { name: 'Figma',      initials: 'Fi', color: '#a21caf', roles: 2, source: 'linkedin' },
-  { name: 'Linear',     initials: 'Li', color: '#5e6ad2', roles: 1, source: 'platform' },
-]
-
-function JobSquarePanel() {
-  return (
-    <div className="jsq-panel">
-      {/* Post a Job — prominent CTA, top */}
-      <div className="jsq-post-card">
-        <div className="jsq-post-card-text">
-          <p className="jsq-post-card-title">Post your opening</p>
-          <p className="jsq-post-card-desc">Reach 2.4K active candidates directly — no middleman.</p>
-        </div>
-        <JobSquarePostButton />
-      </div>
-
-      {/* Overview stats */}
-      <div className="jsq-pulse-card">
-        <div className="jsq-hd">
-          <span className="jsq-hd-title">Market Pulse</span>
-          <span className="jsq-hd-sub">Updated 2h ago</span>
-        </div>
-        <div className="jsq-stats-row">
-          <div className="jsq-stat"><strong>57</strong><span>Jobs available</span></div>
-          <div className="jsq-stat"><strong>9</strong><span>New today</span></div>
-          <div className="jsq-stat"><strong>38%</strong><span>Direct contact</span></div>
-        </div>
-      </div>
-
-      <div className="jsq-content-card">
-        {/* Response time by source */}
-        <div className="jsq-section">
-          <p className="jsq-section-title">Avg. Response Time</p>
-          <div className="jsq-resp-row">
-            <div className="jsq-resp-item">
-              <span className="jsq-resp-src jsq-resp-src--platform">Platform</span>
-              <strong className="jsq-resp-val">~12h</strong>
-            </div>
-            <div className="jsq-resp-divider" />
-            <div className="jsq-resp-item">
-              <span className="jsq-resp-src jsq-resp-src--linkedin">LinkedIn</span>
-              <strong className="jsq-resp-val">~48h</strong>
-            </div>
-          </div>
-        </div>
-
-        {/* Top companies */}
-        <div className="jsq-section">
-          <p className="jsq-section-title">Most Popular Jobs</p>
-          <div className="jsq-companies">
-            {TOP_COMPANIES.map(c => (
-              <div key={c.name} className="jsq-company-row">
-                <span className="jsq-co-av" style={{ background: c.color + '22', color: c.color }}>{c.initials}</span>
-                <span className="jsq-co-name">{c.name}</span>
-                <span className="jsq-co-roles">{c.roles} role{c.roles > 1 ? 's' : ''}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-    </div>
-  )
-}
 
 // ── Logo assets (same as landing page) ──────────────────────────────
 const FIG_LOGO_ICON = '/img/nav/logo_icon.png'
@@ -652,7 +426,6 @@ export default function JobsPage() {
   const [workModes, setWorkModes] = useState<Set<string>>(new Set())
   const [referralOnly, setReferralOnly] = useState(false)
   const [manualOnly, setManualOnly] = useState(false)
-  const [contactItem, setContactItem] = useState<JSItem | null>(null)
   const [openFilter, setOpenFilter] = useState<string | null>(null)
   const [jobTypes, setJobTypes] = useState<Set<string>>(new Set())
   const [levels, setLevels] = useState<Set<string>>(new Set())
@@ -812,6 +585,8 @@ export default function JobsPage() {
           <main className="jb-main">
             {/* 固定筛选 + 仅列表滚动 */}
             <div className="jb-list">
+          {activeTab === 'recommend' ? (
+          <>
           <div className="jb-filters">
             {/* Row 1: Recommend = 搜索+排序；Direct hire = 搜索+Location（原排序位） */}
             <div className="jb-filter-row1">
@@ -1049,26 +824,24 @@ export default function JobsPage() {
           </div>
 
               <div className="jb-list-scroll">
-                {activeTab === 'recommend'
-                  ? jobs.map(job => <JobCard key={job.id} job={job} onSave={toggleSave} />)
-                  : <div className="js-grid">{JOB_SQUARE.map(item => <JobSquareCard key={item.id} item={item} onContact={setContactItem} />)}</div>
-                }
+                {jobs.map(job => <JobCard key={job.id} job={job} onSave={toggleSave} />)}
               </div>
+              </>
+              ) : (
+                <DirectHireBoard />
+              )}
             </div>
           </main>
 
           {/* 右侧栏：固定宽度，位于共享标题栏下方 */}
           <aside className="jb-panel">
-            {activeTab === 'recommend' ? <AutoApplyPanel /> : <JobSquarePanel />}
+            {activeTab === 'recommend' ? <AutoApplyPanel /> : <DirectHireCta />}
           </aside>
         </div>
       </section>
 
       {/* Floating Nova Chat */}
       <FloatingNovaChat />
-
-      {/* Contact modal */}
-      {contactItem && <ContactModal key={contactItem.id} item={contactItem} onClose={() => setContactItem(null)} />}
     </div>
   )
 }

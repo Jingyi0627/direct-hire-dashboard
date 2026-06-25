@@ -10,24 +10,24 @@ function CompanyAvatar({ name, color, size = 36 }: { name: string; color: string
   )
 }
 
-type JobCardMatchTier = 'low' | 'mid' | 'high' | 'elite'
+export type JobCardMatchTier = 'low' | 'mid' | 'high' | 'elite'
 
-function getJobCardMatchTier(match: number): JobCardMatchTier {
+export function getJobCardMatchTier(match: number): JobCardMatchTier {
   if (match >= 80) return 'elite'
   if (match >= 65) return 'high'
   if (match >= 50) return 'mid'
   return 'low'
 }
 
-function MatchRing({ pct, tier }: { pct: number; tier: JobCardMatchTier }) {
-  const radius = 28
-  const stroke = 8
+export function MatchRing({ pct, tier, compact = false }: { pct: number; tier: JobCardMatchTier; compact?: boolean }) {
+  const radius = compact ? 20 : 28
+  const stroke = compact ? 6 : 8
   const size = radius * 2 + stroke
   const circumference = 2 * Math.PI * radius
   const dashOffset = circumference * (1 - pct / 100)
 
   return (
-    <div className="jb-ring">
+    <div className={`jb-ring${compact ? ' jb-ring--compact' : ''}`}>
       <svg className="jb-ring-svg" width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
         <circle
           className={`jb-ring-track jb-ring-track--${tier}`}
