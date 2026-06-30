@@ -9,6 +9,12 @@ const LinkedInGlyph = ({ size = 12 }: { size?: number }) => (
   </svg>
 )
 
+const CheckGlyph = ({ size = 12 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+)
+
 /** LinkedIn profile photo with initials fallback + a small LinkedIn source badge. */
 function SignalAvatar({ signal }: { signal: DirectHireSignal }) {
   const [imgError, setImgError] = useState(false)
@@ -43,15 +49,47 @@ function SignalAvatar({ signal }: { signal: DirectHireSignal }) {
 
 type Props = {
   signal: DirectHireSignal
+  /** When false, Contact / card click opens the LinkedIn connect prompt instead. */
+  connected: boolean
+  /** Results view: show a selection checkbox and toggle selection on card click. */
+  selectable?: boolean
+  selected?: boolean
+  onToggleSelect?: (id: string) => void
+  /** Pre-search sample card: adds a "We're hiring" headline + "See More" button. */
+  sample?: boolean
+  /** Opens the original post (and records the click). Connected state only. */
   onContact: (signal: DirectHireSignal) => void
+  /** Called for any locked action while LinkedIn is not connected. */
+  onLocked?: () => void
 }
 
-export default function DirectHireSignalCard({ signal, onContact }: Props) {
-  const openPost = () => window.open(signal.linkedInPostUrl, '_blank', 'noopener,noreferrer')
+export default function DirectHireSignalCard({
+  signal,
+  connected,
+  selectable = false,
+  selected = false,
+  onToggleSelect,
+  sample = false,
+  onContact,
+  onLocked,
+}: Props) {
+  const openPost = () => {
+    if (!connected) {
+      onLocked?.()
+      return
+    }
+    onContact(signal)
+  }
+
+  // Card body click: select (results view) → connect prompt (locked) → open post.
+  const handleCardClick = () => {
+    if (selectable) onToggleSelect?.(signal.id)
+    else openPost()
+  }
 
   const handleContact = (e: React.MouseEvent) => {
-    e.stopPropagation() // don't double-trigger the card's open handler
-    onContact(signal)
+    e.stopPropagation() // don't double-trigger the card's click handler
+    openPost()
   }
 
   // Always show the match ring whenever a score exists — no threshold, low scores included.
@@ -63,20 +101,37 @@ export default function DirectHireSignalCard({ signal, onContact }: Props) {
 
   return (
     <article
-      className="dh-card"
-      role="link"
+      className={`dh-card${selectable ? ' dh-card--selectable' : ''}${selected ? ' is-selected' : ''}`}
+      role={selectable ? 'checkbox' : 'link'}
+      aria-checked={selectable ? selected : undefined}
       tabIndex={0}
-      aria-label={`Open LinkedIn post for ${signal.jobTitle} at ${signal.companyName}`}
-      onClick={openPost}
+      aria-label={
+        selectable
+          ? `Select ${signal.hiringManagerName} — ${signal.jobTitle} at ${signal.companyName}`
+          : `Open LinkedIn post for ${signal.jobTitle} at ${signal.companyName}`
+      }
+      onClick={handleCardClick}
       onKeyDown={e => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
-          openPost()
+          handleCardClick()
         }
       }}
     >
-      {/* Top row — hiring manager + compact match ring */}
+      {/* Subtle preview banner — only on pre-connection example cards */}
+      {sample && (
+        <p className="dh-preview-tag">
+          <span className="dh-preview-dot" /> Curated based on Job Preference
+        </p>
+      )}
+
+      {/* Top row — selection checkbox (results) + hiring manager + match ring */}
       <div className="dh-card-top">
+        {selectable && (
+          <span className={`dh-check${selected ? ' is-on' : ''}`} aria-hidden="true">
+            {selected && <CheckGlyph size={12} />}
+          </span>
+        )}
         <SignalAvatar signal={signal} />
         <div className="dh-mgr">
           <p className="dh-mgr-name">{signal.hiringManagerName}</p>
@@ -91,6 +146,7 @@ export default function DirectHireSignalCard({ signal, onContact }: Props) {
 
       {/* Role + meta (location · time posted) */}
       <div className="dh-card-body">
+        {sample && <p className="dh-hiring-eyebrow">We’re hiring</p>}
         <h3
           className="dh-role"
           onClick={e => {
@@ -128,7 +184,7 @@ export default function DirectHireSignalCard({ signal, onContact }: Props) {
         </div>
       )}
 
-      {/* Footer — compact LinkedIn-style Contact */}
+      {/* Footer — full-width LinkedIn-style action (Contact / See More) */}
       <div className="dh-card-ft">
         <button className="dh-contact-btn" onClick={handleContact}>
           <LinkedInGlyph size={12} />

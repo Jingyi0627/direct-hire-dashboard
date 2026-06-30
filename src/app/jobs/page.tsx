@@ -15,7 +15,6 @@ import {
   LocationQuickPickButton,
   LocationResetIconButton,
   LocationResultRowButton,
-  SavedJobsButton,
   SearchClearButton,
   SortPanelItemButton,
   TopAvatarButton,
@@ -546,7 +545,6 @@ export default function JobsPage() {
                     label="Direct hire"
                   />
                 </div>
-                <SavedJobsButton />
               </div>
             </div>
             <div className="jb-main-hd-side">

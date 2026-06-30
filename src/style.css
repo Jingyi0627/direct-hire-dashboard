@@ -1988,6 +1988,7 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 }
 .jb-filter-panel--right { left: auto; right: 0; }
 .jb-filter-panel--loc  { width: 340px; gap: 12px; }
+.jb-filter-panel--scroll { max-height: 300px; overflow-y: auto; }
 @keyframes panelIn {
   from { opacity: 0; transform: translateY(-6px) scale(0.97); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
@@ -4571,16 +4572,28 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 /* ── Header: title + context + filters (fixed above the scroll) ── */
 .dh-head {
   flex-shrink: 0;
-  padding: 18px var(--space-4) 0;
-  display: flex; flex-direction: column; gap: 14px;
+  padding: 14px var(--space-4) 0;
+  display: flex; flex-direction: column; gap: 10px;
 }
 .dh-head-titles { display: flex; flex-direction: column; gap: 4px; }
+.dh-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .dh-title {
   font-family: var(--font-heading);
   font-size: 23px; font-weight: 800; letter-spacing: -0.02em;
   color: var(--color-text-default);
 }
+/* Premium pill beside the title — subtle lime tint, dark-green text */
+.dh-premium-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: var(--radius-full);
+  background: var(--color-main-tint-md);
+  color: var(--color-text-green-dark);
+  font-family: var(--font-heading); font-size: 11px; font-weight: 800;
+  letter-spacing: 0.01em; line-height: 1;
+}
+.dh-premium-badge svg { color: var(--color-text-green); flex-shrink: 0; }
 .dh-subtitle { font-size: 13px; color: var(--color-text-second); }
+.dh-subtitle-note { color: var(--color-text-second-2); }
 .dh-stats {
   display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
   margin-top: 6px;
@@ -4600,6 +4613,36 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 .dh-filters .jb-fdrop { height: 36px; }
 .dh-search { width: 100%; flex: none; }
 .dh-filter-chips { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; }
+
+/* Search row: input + explicit Search button */
+.dh-search-row { display: flex; align-items: center; gap: 8px; }
+.dh-search-row .dh-search { flex: 1; width: auto; }
+.dh-search-btn {
+  flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 7px;
+  height: 40px; padding: 0 18px;
+  border: none; border-radius: var(--radius-full);
+  background: var(--color-text-default); color: var(--color-text-white);
+  font-family: var(--font-heading); font-size: 13px; font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+}
+.dh-search-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: var(--shadow-btn-hover); }
+.dh-search-btn:active:not(:disabled) { transform: translateY(0); }
+
+/* Disabled (not connected) filter state — the whole area is a click target
+   that prompts the user to connect, so the controls never feel dead. */
+.dh-filters.is-disabled { opacity: 0.55; cursor: pointer; }
+.dh-filters.is-disabled .dh-search,
+.dh-filters.is-disabled .dh-search-btn,
+.dh-filters.is-disabled .jb-drop-wrap,
+.dh-filters.is-disabled .dh-loc-field { pointer-events: none; }
+.dh-search-btn:disabled { opacity: 0.5; }
+.dh-locked-note {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11.5px; font-weight: 500; color: var(--color-text-second-2);
+}
+.dh-locked-note svg { color: var(--color-linkedin); flex-shrink: 0; }
 
 .dh-loc-field {
   display: flex; align-items: center; gap: 7px;
@@ -4639,6 +4682,7 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 
 /* ── Signal card — compact, scannable opportunity card ───────── */
 .dh-card {
+  position: relative;
   background: var(--color-surface);
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border-default);
@@ -4648,6 +4692,18 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   transition: box-shadow 0.26s cubic-bezier(0.4,0,0.2,1),
               transform 0.2s cubic-bezier(0.4,0,0.2,1),
               border-color 0.2s;
+}
+/* Subtle "Preview" banner on pre-connection example cards */
+.dh-preview-tag {
+  display: inline-flex; align-items: center; gap: 6px; align-self: flex-start;
+  margin: -2px 0 -2px; padding: 3px 9px 3px 7px; border-radius: var(--radius-full);
+  background: var(--color-bg-light); color: var(--color-text-green-dark);
+  border: 1px solid var(--color-main-tint-sm);
+  font-size: 10px; font-weight: 700; letter-spacing: 0.01em;
+}
+.dh-preview-dot {
+  width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  background: var(--color-main-default);
 }
 .dh-card:hover {
   box-shadow: var(--shadow-float);
@@ -4661,6 +4717,14 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 .dh-card:hover .jb-ring-progress {
   animation: jbRingGrow 460ms cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
 }
+
+/* Selectable result card — checkbox + selected ring */
+.dh-card--selectable { cursor: pointer; }
+.dh-card.is-selected {
+  border-color: var(--color-main-default);
+  box-shadow: 0 0 0 1px var(--color-main-default), var(--shadow-float);
+}
+.dh-card-top .dh-check { margin-top: 0; flex-shrink: 0; }
 
 /* Top row: hiring manager + compact match ring on the right */
 .dh-card-top { display: flex; align-items: center; gap: 10px; }
@@ -4702,6 +4766,11 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
 
 /* Body: role + meta (location · posted) */
 .dh-card-body { display: flex; flex-direction: column; gap: 3px; }
+/* Sample (pre-search) headline: "We're hiring" eyebrow above the role */
+.dh-hiring-eyebrow {
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--color-text-green-dark); margin-bottom: 1px;
+}
 .dh-role {
   font-family: var(--font-heading);
   font-size: 15px; font-weight: 700; line-height: 1.25; letter-spacing: -0.01em;
@@ -4949,4 +5018,705 @@ button { cursor: pointer; border: none; background: none; font-family: inherit; 
   .dh-filter-chips > * { flex: 1 1 auto; }
   .dh-loc-field { width: 100%; }
   .dh-grid { grid-template-columns: 1fr; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DIRECT HIRE SIGNALS — simplified workflow
+   Connect LinkedIn → Search → Review → Send personalized requests
+════════════════════════════════════════════════════════════════ */
+
+/* ── Compact workflow stepper (subtle, header-integrated) ────── */
+.dh-flow {
+  display: inline-flex; align-items: center; gap: 4px;
+  list-style: none; margin: 2px 0 0; padding: 0;
+  flex-wrap: wrap;
+}
+.dh-flow-step {
+  position: relative;
+  display: inline-flex; align-items: center; gap: 6px;
+  flex: 0 0 auto; min-width: 0;
+}
+.dh-flow-dot {
+  flex-shrink: 0;
+  width: 17px; height: 17px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--color-bg-neutral); color: var(--color-text-second-2);
+  font-size: 9.5px; font-weight: 800; font-family: var(--font-heading);
+  border: 1px solid var(--color-border-default);
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.dh-flow-label {
+  font-size: 11px; font-weight: 600; color: var(--color-text-second-2);
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+.dh-flow-sep {
+  margin: 0 6px; color: var(--color-text-second-2); opacity: 0.55; flex-shrink: 0;
+}
+.dh-flow-step.is-current .dh-flow-dot {
+  background: var(--color-main-default); color: var(--color-text-default);
+  border-color: var(--color-main-default);
+}
+.dh-flow-step.is-current .dh-flow-label { color: var(--color-text-default); font-weight: 700; }
+.dh-flow-step.is-done .dh-flow-dot {
+  background: var(--color-text-default); color: var(--color-main-default);
+  border-color: var(--color-text-default);
+}
+.dh-flow-step.is-done .dh-flow-label { color: var(--color-text-second); }
+
+/* ── Workflow + Connect CTA row (not connected) ──────────────── */
+.dh-flow-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px 16px; flex-wrap: wrap; margin-top: 2px;
+  border-radius: var(--radius-md);
+}
+.dh-flow-row .dh-flow { margin-top: 0; }
+.dh-flow-row.is-pulsing .dh-connect-btn { animation: dhBtnPulse 1.1s ease-out; }
+@keyframes dhBtnPulse {
+  0%, 100% { box-shadow: 0 6px 18px rgba(10, 102, 194, 0.28); transform: translateY(0); }
+  30% { box-shadow: 0 0 0 4px var(--color-main-tint-md), 0 6px 18px rgba(10, 102, 194, 0.28); transform: translateY(-2px); }
+}
+.dh-connect-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  flex-shrink: 0;
+  height: 36px; padding: 0 16px; border: none; border-radius: var(--radius-full);
+  background: var(--color-linkedin); color: #fff;
+  font-family: var(--font-heading); font-size: 13px; font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(10, 102, 194, 0.28);
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+}
+.dh-connect-btn:hover:not(:disabled) { transform: translateY(-1px); background: var(--color-linkedin-hover, #084d93); }
+.dh-connect-btn:disabled { opacity: 0.85; cursor: progress; }
+@media (max-width: 560px) {
+  .dh-flow-row .dh-connect-btn { width: 100%; }
+}
+
+.dh-spinner {
+  width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.4); border-top-color: #fff;
+  animation: dhSpin 0.7s linear infinite;
+}
+@keyframes dhSpin { to { transform: rotate(360deg); } }
+
+/* ── Connected status (compact) ──────────────────────────────── */
+/* Compact single-line connected status row — kept short so the signal
+   cards sit higher on the page. */
+.dh-connected {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 10px 6px 7px; border-radius: var(--radius-full);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-default);
+}
+.dh-connected-av {
+  width: 26px; height: 26px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+}
+.dh-connected-id {
+  display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0;
+  font-size: 12.5px; white-space: nowrap;
+}
+.dh-connected-name { font-weight: 700; color: var(--color-text-default); flex-shrink: 0; }
+.dh-connected-sep { color: var(--color-text-second-2); flex-shrink: 0; }
+.dh-connected-headline {
+  color: var(--color-text-second-2); min-width: 0;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.dh-connected-badge {
+  flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 9px; border-radius: var(--radius-full);
+  background: var(--color-remote-bg); color: var(--color-remote-hover);
+  font-size: 10.5px; font-weight: 700;
+}
+.dh-dot-live {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--color-remote);
+  box-shadow: 0 0 0 3px var(--color-remote-bg);
+}
+.dh-disconnect-btn {
+  flex-shrink: 0;
+  height: 26px; padding: 0 11px; border-radius: var(--radius-full);
+  background: transparent; color: var(--color-text-second-2);
+  border: 1px solid var(--color-border-default);
+  font-family: var(--font-heading); font-size: 11.5px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.dh-disconnect-btn:hover { background: var(--color-bg-neutral); color: var(--color-text-default); }
+
+/* ── Section heading (default feed) ──────────────────────────── */
+.dh-section-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; }
+.dh-section-title {
+  font-family: var(--font-heading); font-size: 13px; font-weight: 700; color: var(--color-text-default);
+}
+.dh-section-hint { font-size: 12px; color: var(--color-text-second-2); }
+
+/* ── Rows (sample + result) ──────────────────────────────────── */
+.dh-rows { display: flex; flex-direction: column; gap: 10px; }
+.dh-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px; border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-default);
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.15s;
+}
+.dh-row--result { cursor: pointer; }
+.dh-row--result:hover { box-shadow: var(--shadow-float); border-color: transparent; }
+.dh-row--result.is-selected {
+  border-color: var(--color-main-default);
+  box-shadow: 0 0 0 1px var(--color-main-default), var(--shadow-float);
+}
+.dh-row-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.dh-row-head { display: flex; align-items: center; gap: 8px; }
+.dh-row-name {
+  font-size: 14px; font-weight: 700; color: var(--color-text-default);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dh-row-sub {
+  font-size: 12px; color: var(--color-text-second-2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dh-row-headline {
+  font-size: 13px; font-weight: 600; color: var(--color-text-green-dark); margin-top: 4px;
+}
+.dh-match-pill {
+  flex-shrink: 0;
+  padding: 1px 8px; border-radius: var(--radius-full);
+  background: var(--color-main-tint-sm); color: var(--color-text-on-green);
+  font-size: 10.5px; font-weight: 700;
+}
+.dh-row-meta {
+  display: flex; align-items: center; gap: 8px; margin-top: 4px;
+  font-size: 12px; color: var(--color-text-second);
+}
+.dh-row-role { font-weight: 600; color: var(--color-text-default); }
+.dh-row-loc { color: var(--color-text-second-2); }
+.dh-row-quote {
+  margin-top: 6px;
+  font-size: 12.5px; line-height: 1.45; color: var(--color-text-second);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.dh-postlink {
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 8px;
+  font-size: 11.5px; font-weight: 600; color: var(--color-linkedin);
+  text-decoration: none; width: fit-content;
+  transition: gap 0.15s;
+}
+.dh-postlink:hover { gap: 8px; text-decoration: underline; text-underline-offset: 2px; }
+
+/* See More button (sample rows) */
+.dh-seemore-btn {
+  flex-shrink: 0; align-self: center;
+  height: 34px; padding: 0 16px; border-radius: var(--radius-full);
+  background: var(--color-bg-neutral); color: var(--color-text-default);
+  border: none; font-family: var(--font-heading); font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: background 0.15s, transform 0.15s;
+}
+.dh-seemore-btn:hover { background: var(--color-border-default); transform: translateY(-1px); }
+
+/* ── Selection checkbox ──────────────────────────────────────── */
+.dh-check {
+  flex-shrink: 0; margin-top: 2px;
+  width: 20px; height: 20px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--color-surface); color: #fff;
+  border: 1.5px solid var(--color-border-default);
+  cursor: pointer; padding: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+.dh-check.is-on {
+  background: var(--color-text-default); border-color: var(--color-text-default);
+  color: var(--color-main-default);
+}
+.dh-check--all { margin-top: 0; }
+
+/* ── Results bar ─────────────────────────────────────────────── */
+.dh-results-bar {
+  display: flex; align-items: center; gap: 10px;
+  padding-bottom: 2px;
+}
+.dh-results-count { font-size: 13px; color: var(--color-text-second); }
+.dh-results-count strong { color: var(--color-text-default); font-weight: 800; }
+.dh-results-sel {
+  margin-left: auto;
+  padding: 2px 10px; border-radius: var(--radius-full);
+  background: var(--color-main-tint-sm); color: var(--color-text-on-green);
+  font-size: 11.5px; font-weight: 700;
+}
+
+/* ── Loading state ───────────────────────────────────────────── */
+.dh-loading {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 8px; padding: 64px 24px;
+}
+.dh-loading-orb {
+  width: 56px; height: 56px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--color-linkedin); color: #fff;
+  margin-bottom: 6px;
+  box-shadow: 0 0 0 0 var(--color-main-alpha-25);
+  animation: dhPulseRing 1.6s ease-out infinite;
+}
+@keyframes dhPulseRing {
+  0% { box-shadow: 0 0 0 0 rgba(10, 102, 194, 0.30); }
+  70% { box-shadow: 0 0 0 16px rgba(10, 102, 194, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(10, 102, 194, 0); }
+}
+.dh-loading-title {
+  font-family: var(--font-heading); font-size: 16px; font-weight: 800;
+  color: var(--color-text-default);
+}
+.dh-loading-sub { font-size: 13px; color: var(--color-text-second-2); }
+
+/* ── Sticky bulk action bar ──────────────────────────────────── */
+.dh-bulk-spacer { height: 4px; }
+.dh-bulk-bar {
+  flex-shrink: 0;
+  display: flex; align-items: center; gap: 14px;
+  margin: 0 var(--space-4) var(--space-3);
+  padding: 12px 16px; border-radius: var(--radius-lg);
+  background: var(--color-text-default);
+  box-shadow: var(--shadow-panel);
+  animation: dhBulkRise 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes dhBulkRise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.dh-bulk-count { font-size: 13px; font-weight: 600; color: var(--color-white-alpha-72); white-space: nowrap; }
+.dh-bulk-btn {
+  margin-left: auto; flex-shrink: 0;
+  height: 40px; padding: 0 20px; border: none; border-radius: var(--radius-full);
+  background: var(--color-main-default); color: var(--color-text-default);
+  font-family: var(--font-heading); font-size: 13px; font-weight: 800; letter-spacing: -0.01em;
+  cursor: pointer;
+  box-shadow: 0 8px 22px var(--color-main-tint-md);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.dh-bulk-btn:hover { transform: translateY(-1px); box-shadow: 0 12px 30px var(--color-main-tint-md); }
+
+/* ── Outreach type chooser (compact dialog) ──────────────────── */
+.dh-chooser-overlay {
+  position: fixed; inset: 0; z-index: 60;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  background: rgba(9, 9, 11, 0.42);
+  animation: dhFade 0.18s ease;
+}
+@keyframes dhFade { from { opacity: 0; } to { opacity: 1; } }
+.dh-chooser {
+  position: relative;
+  width: 100%; max-width: 460px;
+  background: var(--color-surface); border-radius: var(--radius-xl);
+  padding: 26px; box-shadow: var(--shadow-modal);
+  animation: dhPop 0.2s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+@keyframes dhPop { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+.dh-chooser-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--color-bg-neutral); color: var(--color-text-second-2);
+  border: none; cursor: pointer; transition: background 0.15s, color 0.15s;
+}
+.dh-chooser-close:hover { background: var(--color-border-default); color: var(--color-text-default); }
+.dh-chooser-title {
+  font-family: var(--font-heading); font-size: 19px; font-weight: 800; letter-spacing: -0.01em;
+  color: var(--color-text-default);
+}
+.dh-chooser-desc { font-size: 13px; line-height: 1.5; color: var(--color-text-second); margin-top: 8px; }
+.dh-chooser-opts { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+.dh-chooser-opt {
+  position: relative; text-align: left;
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 14px 44px 14px 16px; border-radius: var(--radius-lg);
+  background: var(--color-surface); border: 1px solid var(--color-border-default);
+  cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+.dh-chooser-opt:hover {
+  border-color: var(--color-main-default);
+  box-shadow: 0 0 0 1px var(--color-main-default);
+  transform: translateY(-1px);
+}
+.dh-chooser-opt-title { font-family: var(--font-heading); font-size: 14px; font-weight: 700; color: var(--color-text-default); }
+.dh-chooser-opt-blurb { font-size: 12px; color: var(--color-text-second-2); }
+.dh-chooser-opt-arrow {
+  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  font-size: 18px; color: var(--color-text-second-2); transition: transform 0.15s, color 0.15s;
+}
+.dh-chooser-opt:hover .dh-chooser-opt-arrow { color: var(--color-text-default); transform: translateY(-50%) translateX(2px); }
+
+/* ── LinkedIn connection modal ───────────────────────────────── */
+.dh-modal-overlay {
+  position: fixed; inset: 0; z-index: 70;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  background: rgba(9, 9, 11, 0.46);
+  animation: dhFade 0.18s ease;
+}
+.dh-modal {
+  position: relative;
+  width: 100%; max-width: 480px;
+  max-height: calc(100vh - 48px);
+  display: flex; flex-direction: column;
+  background: var(--color-surface); border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-modal);
+  animation: dhPop 0.2s cubic-bezier(0.34, 1.2, 0.64, 1);
+  overflow: hidden;
+  /* Plus Jakarta Sans's "fi" ligature drops the dot on the i (e.g. "Benefits",
+     "verification") — disable common ligatures so the i renders normally. */
+  font-variant-ligatures: no-common-ligatures;
+}
+
+/* Header */
+.dh-modal-head {
+  flex-shrink: 0;
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-border-default);
+}
+.dh-modal-head-icon {
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--color-linkedin); color: #fff;
+}
+.dh-modal-back {
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--color-bg-neutral); color: var(--color-text-second);
+  border: none; cursor: pointer; transition: background 0.15s, color 0.15s;
+}
+.dh-modal-back:hover { background: var(--color-border-default); color: var(--color-text-default); }
+.dh-modal-head-titles { flex: 1; min-width: 0; }
+.dh-modal-head-title {
+  font-family: var(--font-heading); font-size: 15px; font-weight: 800; letter-spacing: -0.01em;
+  color: var(--color-text-default);
+}
+.dh-modal-head-sub {
+  margin-top: 2px; font-size: 11.5px; line-height: 1.4; color: var(--color-text-second-2);
+}
+.dh-modal-close {
+  flex-shrink: 0;
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--color-bg-neutral); color: var(--color-text-second-2);
+  border: none; cursor: pointer; transition: background 0.15s, color 0.15s;
+}
+.dh-modal-close:hover { background: var(--color-border-default); color: var(--color-text-default); }
+
+/* Scrollable body */
+.dh-modal-body {
+  overflow-y: auto;
+  padding: 18px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+/* Keep children at natural height so the body scrolls instead of compressing them. */
+.dh-modal-body > * { flex-shrink: 0; }
+
+/* Collapsible benefits + trust section */
+.dh-disclose { display: flex; flex-direction: column; gap: 14px; }
+.dh-disclose-toggle {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  width: 100%; padding: 0; border: none; background: transparent; cursor: pointer;
+  font-family: var(--font-heading); font-size: 12.5px; font-weight: 700; color: var(--color-text-default);
+  text-align: left;
+}
+.dh-disclose-chevron { color: var(--color-text-second-2); transition: transform 0.2s; display: inline-flex; }
+.dh-disclose.is-open .dh-disclose-chevron { transform: rotate(180deg); }
+.dh-disclose-body { display: flex; flex-direction: column; gap: 14px; }
+
+/* Supportive benefit cards */
+.dh-mini-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.dh-mini-card {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 9px; border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-default); background: var(--color-surface);
+}
+.dh-mini-card-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border-radius: 7px;
+  background: var(--color-main-tint-md); color: var(--color-text-green-dark);
+}
+.dh-mini-card-title {
+  font-family: var(--font-heading); font-size: 11.5px; font-weight: 700; line-height: 1.2;
+  color: var(--color-text-default);
+}
+.dh-mini-card-text { font-size: 10px; line-height: 1.35; color: var(--color-text-second-2); }
+@media (max-width: 460px) {
+  .dh-mini-cards { grid-template-columns: 1fr; }
+}
+
+/* Compact trust */
+.dh-trustbar {
+  padding: 10px 12px; border-radius: var(--radius-md);
+  border: 1px solid var(--color-main-tint-sm); background: var(--color-bg-light);
+}
+.dh-trustbar-text { font-size: 11px; line-height: 1.45; color: var(--color-text-on-green); }
+.dh-trust-chips {
+  list-style: none; margin: 8px 0 0; padding: 0;
+  display: flex; flex-wrap: nowrap; gap: 5px;
+}
+.dh-trust-chip {
+  display: inline-flex; align-items: center; gap: 3px; white-space: nowrap;
+  padding: 2px 7px; border-radius: var(--radius-full);
+  background: var(--color-surface); color: var(--color-text-green-dark);
+  font-size: 9.5px; font-weight: 700;
+}
+.dh-trust-chip svg { color: var(--color-text-green-dark); flex-shrink: 0; }
+
+/* Method selector (segmented control) */
+.dh-seg {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+  padding: 4px; border-radius: var(--radius-md);
+  background: var(--color-bg-neutral);
+}
+.dh-seg-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  height: 36px; border: none; border-radius: var(--radius-sm); cursor: pointer;
+  background: transparent; color: var(--color-text-second);
+  font-family: var(--font-heading); font-size: 12px; font-weight: 700;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+.dh-seg-btn svg { flex-shrink: 0; }
+.dh-seg-btn:hover:not(.is-on) { color: var(--color-text-default); }
+.dh-seg-btn.is-on {
+  background: var(--color-main-default); color: var(--color-text-default);
+  box-shadow: var(--shadow-float);
+}
+
+/* Intro */
+.dh-modal-intro--center { text-align: center; }
+.dh-modal-intro-title {
+  font-family: var(--font-heading); font-size: 17px; font-weight: 800; letter-spacing: -0.01em;
+  color: var(--color-text-default);
+}
+.dh-modal-intro-desc {
+  margin-top: 6px;
+  font-size: 12.5px; line-height: 1.55; color: var(--color-text-second);
+}
+
+/* Form fields */
+.dh-modal-form { display: flex; flex-direction: column; gap: 14px; }
+.dh-field { display: flex; flex-direction: column; gap: 6px; }
+.dh-field--center { align-items: center; text-align: center; }
+.dh-field-label {
+  font-family: var(--font-heading); font-size: 12px; font-weight: 700; color: var(--color-text-default);
+}
+.dh-field-help { font-size: 11px; line-height: 1.45; color: var(--color-text-second-2); }
+.dh-field-linkrow { display: flex; justify-content: flex-end; }
+.dh-link {
+  background: none; border: none; padding: 0; cursor: pointer;
+  font-family: var(--font-heading); font-size: 11.5px; font-weight: 700;
+  color: var(--color-linkedin); text-decoration: none;
+}
+.dh-link:hover { text-decoration: underline; text-underline-offset: 2px; }
+/* Compact "Can't find your 2FA key?" inline help flow */
+.dh-2fa-help {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px;
+  padding: 10px 12px; border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-default); background: var(--color-bg-neutral);
+  font-size: 10.5px; line-height: 1.4; color: var(--color-text-second);
+}
+.dh-2fa-help-step { display: inline-flex; align-items: center; gap: 6px; }
+.dh-2fa-help-arrow { color: var(--color-text-green); font-weight: 800; }
+/* 2FA confirmation checklist */
+.dh-confirm {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 12px; border-radius: var(--radius-md);
+  border: 1px solid var(--color-main-tint-sm); background: var(--color-bg-light);
+}
+.dh-confirm-item { display: flex; align-items: flex-start; gap: 9px; cursor: pointer; }
+.dh-confirm-item input {
+  width: 16px; height: 16px; margin-top: 1px; flex-shrink: 0; cursor: pointer;
+  accent-color: var(--color-main-default);
+}
+.dh-confirm-text { display: flex; flex-direction: column; gap: 2px; }
+.dh-confirm-label {
+  font-family: var(--font-heading); font-size: 12px; font-weight: 700; color: var(--color-text-default);
+}
+.dh-confirm-help { font-size: 10.5px; line-height: 1.4; color: var(--color-text-second-2); }
+.dh-input {
+  width: 100%; height: 42px; padding: 0 13px;
+  border: 1px solid var(--color-border-default); border-radius: var(--radius-md);
+  background: var(--color-surface); color: var(--color-text-default);
+  font-family: var(--font-body); font-size: 13px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.dh-input::placeholder { color: var(--color-text-second-2); }
+.dh-input:focus {
+  outline: none; border-color: var(--color-main-default);
+  box-shadow: 0 0 0 3px var(--color-main-tint-md);
+}
+.dh-input:disabled, .dh-select:disabled {
+  background: var(--color-bg-neutral); color: var(--color-text-second-2);
+  cursor: not-allowed; opacity: 0.7;
+}
+.dh-input--code {
+  width: 180px; height: 50px; text-align: center;
+  font-family: var(--font-heading); font-size: 22px; font-weight: 800;
+  letter-spacing: 0.4em; padding-right: 9px;
+}
+.dh-select-wrap { position: relative; }
+.dh-select-wrap svg {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  pointer-events: none; color: var(--color-text-second-2);
+}
+.dh-select {
+  width: 100%; height: 42px; padding: 0 36px 0 13px;
+  border: 1px solid var(--color-border-default); border-radius: var(--radius-md);
+  background: var(--color-surface); color: var(--color-text-default);
+  font-family: var(--font-body); font-size: 13px; cursor: pointer;
+  appearance: none; -webkit-appearance: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.dh-select:focus {
+  outline: none; border-color: var(--color-main-default);
+  box-shadow: 0 0 0 3px var(--color-main-tint-md);
+}
+
+/* Primary CTA */
+.dh-modal-cta {
+  width: 100%; height: 46px; border: none; border-radius: var(--radius-full);
+  background: var(--color-text-default); color: #fff;
+  font-family: var(--font-heading); font-size: 14px; font-weight: 800; letter-spacing: -0.01em;
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  transition: transform 0.15s, opacity 0.15s;
+}
+.dh-modal-cta:hover:not(:disabled) { transform: translateY(-1px); }
+.dh-modal-cta:disabled { opacity: 0.45; cursor: not-allowed; }
+.dh-modal-cta .dh-spinner { border-color: rgba(255, 255, 255, 0.4); border-top-color: #fff; }
+
+/* Verify step */
+.dh-verify-orb {
+  align-self: center;
+  width: 54px; height: 54px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--color-linkedin); color: #fff;
+}
+
+/* Connecting / syncing state */
+.dh-connecting {
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;
+  padding: 44px 16px;
+}
+.dh-connecting-spinner {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 3px solid var(--color-border-default); border-top-color: var(--color-linkedin);
+  animation: dhSpin 0.8s linear infinite; margin-bottom: 10px;
+}
+.dh-connecting-title {
+  font-family: var(--font-heading); font-size: 18px; font-weight: 800; letter-spacing: -0.01em;
+  color: var(--color-text-default);
+}
+.dh-connecting-copy {
+  font-size: 12.5px; line-height: 1.55; color: var(--color-text-second); max-width: 320px;
+}
+
+/* Success state */
+.dh-success {
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
+  padding: 14px 4px 8px;
+}
+.dh-success-orb {
+  width: 60px; height: 60px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--color-main-default); color: var(--color-text-default);
+  margin-bottom: 8px;
+}
+.dh-success-title {
+  font-family: var(--font-heading); font-size: 18px; font-weight: 800; letter-spacing: -0.01em;
+  color: var(--color-text-default);
+}
+.dh-success-copy {
+  font-size: 12.5px; line-height: 1.55; color: var(--color-text-second); max-width: 340px;
+}
+.dh-success .dh-modal-cta { margin-top: 16px; }
+
+/* ── Review step ─────────────────────────────────────────────── */
+.dh-review { display: flex; flex-direction: column; gap: 16px; }
+.dh-review-head { display: flex; flex-direction: column; gap: 12px; }
+.dh-back-btn {
+  display: inline-flex; align-items: center; gap: 6px; width: fit-content;
+  background: none; border: none; padding: 0; cursor: pointer;
+  font-family: var(--font-heading); font-size: 12.5px; font-weight: 700; color: var(--color-text-second);
+  transition: color 0.15s, gap 0.15s;
+}
+.dh-back-btn:hover { color: var(--color-text-default); gap: 8px; }
+.dh-review-title {
+  font-family: var(--font-heading); font-size: 18px; font-weight: 800; letter-spacing: -0.01em;
+  color: var(--color-text-default);
+}
+.dh-review-sub { font-size: 12.5px; color: var(--color-text-second-2); margin-top: 3px; }
+.dh-type-toggle {
+  display: inline-flex; gap: 4px; padding: 4px;
+  background: var(--color-bg-neutral); border-radius: var(--radius-full); width: fit-content;
+}
+.dh-type-tab {
+  height: 30px; padding: 0 14px; border: none; border-radius: var(--radius-full);
+  background: transparent; color: var(--color-text-second);
+  font-family: var(--font-heading); font-size: 12px; font-weight: 700; cursor: pointer;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+.dh-type-tab.is-on { background: var(--color-surface); color: var(--color-text-default); box-shadow: var(--shadow-tab); }
+
+.dh-review-list { display: flex; flex-direction: column; gap: 12px; }
+.dh-review-card {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 14px; border-radius: var(--radius-lg);
+  background: var(--color-surface); border: 1px solid var(--color-border-default);
+  transition: opacity 0.2s;
+}
+.dh-review-card.is-sent { opacity: 0.7; }
+.dh-review-card-top { display: flex; align-items: center; gap: 10px; }
+.dh-sent-pill {
+  flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 11px; border-radius: var(--radius-full);
+  background: var(--color-remote-bg); color: var(--color-remote-hover);
+  font-size: 11.5px; font-weight: 700;
+}
+.dh-send-one {
+  flex-shrink: 0; height: 32px; padding: 0 16px; border: none; border-radius: var(--radius-full);
+  background: var(--color-linkedin); color: #fff;
+  font-family: var(--font-heading); font-size: 12px; font-weight: 700; cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+.dh-send-one:hover { background: var(--color-linkedin-hover, #084d93); transform: translateY(-1px); }
+.dh-review-text {
+  width: 100%; resize: vertical; min-height: 70px;
+  padding: 10px 12px; border-radius: var(--radius-md);
+  background: var(--color-surface-muted); border: 1px solid var(--color-border-default);
+  font-family: var(--font-body); font-size: 13px; line-height: 1.5; color: var(--color-text-default);
+  outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+}
+.dh-review-text:focus { border-color: var(--color-main-default); box-shadow: 0 0 0 2px var(--color-main-tint-md); }
+.dh-review-text:disabled { background: var(--color-bg-neutral); color: var(--color-text-second-2); }
+.dh-review-card-ft { display: flex; justify-content: flex-end; }
+.dh-char-count { font-size: 11px; color: var(--color-text-second-2); }
+
+.dh-review-foot {
+  position: sticky; bottom: 0;
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; border-radius: var(--radius-lg);
+  background: var(--color-text-default); box-shadow: var(--shadow-panel);
+}
+.dh-review-foot-note { font-size: 12.5px; color: var(--color-white-alpha-72); }
+.dh-sendall-btn {
+  margin-left: auto; flex-shrink: 0;
+  height: 40px; padding: 0 22px; border: none; border-radius: var(--radius-full);
+  background: var(--color-main-default); color: var(--color-text-default);
+  font-family: var(--font-heading); font-size: 13px; font-weight: 800; cursor: pointer;
+  box-shadow: 0 8px 22px var(--color-main-tint-md);
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+}
+.dh-sendall-btn:hover:not(:disabled) { transform: translateY(-1px); }
+.dh-sendall-btn:disabled { opacity: 0.5; cursor: default; box-shadow: none; }
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .dh-connect-card { flex-direction: column; gap: 12px; padding: 16px; }
+  .dh-flow-label { display: none; }
+  .dh-flow-step { flex: 0 0 auto; gap: 0; }
+  .dh-flow-step.is-current .dh-flow-label,
+  .dh-flow-step.is-current ~ .dh-flow-step .dh-flow-label { display: none; }
+  .dh-search-row { flex-wrap: wrap; }
+  .dh-row { flex-wrap: wrap; }
+  .dh-seemore-btn { width: 100%; }
+  .dh-bulk-bar, .dh-review-foot { flex-wrap: wrap; }
+  .dh-bulk-btn, .dh-sendall-btn { margin-left: 0; width: 100%; }
 }
