@@ -1,20 +1,14 @@
 'use client'
 
-import dynamic from 'next/dynamic'
 import { useEffect, useRef, useState } from 'react'
-
-const LottiePlayer = dynamic(
-  () => import('@lottiefiles/react-lottie-player').then(mod => mod.Player),
-  { ssr: false }
-)
+import { AgentChatPreview, AutoApplyPreview, NotificationPreview, ResumeAtsPreview } from './FeaturePreviews'
 
 type Feature = {
   id: string
   label: string
   title: string
   body: string
-  duration: number   // ms
-  lottie?: string
+  duration: number
 }
 
 const FEATURES: Feature[] = [
@@ -23,8 +17,7 @@ const FEATURES: Feature[] = [
     label: 'Instant Job Notification',
     title: 'Be first before the listing goes public',
     body: 'Our neural network scans 50,000+ sources per second. Precision-matched alerts arrive before the job hits public boards — giving you a critical head start every time.',
-    duration: 8620,
-    lottie: '/animations/Instant Job Notification.json',
+    duration: 5000,
   },
   {
     id: 'agent',
@@ -49,12 +42,18 @@ const FEATURES: Feature[] = [
   },
 ]
 
+function PreviewFor({ id, active }: { id: string; active: boolean }) {
+  if (id === 'notification') return <NotificationPreview active={active} />
+  if (id === 'agent') return <AgentChatPreview active={active} />
+  if (id === 'resume') return <ResumeAtsPreview active={active} />
+  return <AutoApplyPreview active={active} />
+}
+
 export default function Features() {
   const [active, setActive] = useState(0)
   const [started, setStarted] = useState(false)
   const sectionRef = useRef<HTMLElement>(null)
 
-  // Start animations when section enters viewport
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) setStarted(true) },
@@ -79,13 +78,11 @@ export default function Features() {
         setStarted(true)
       }
 
-      // 进入区段初期优先稳定展示第一条，避免因滚动位置抖动被过早切走
       if (rect.top >= viewportH * 0.12) {
         setActive(prev => (prev === 0 ? prev : 0))
         return
       }
 
-      // 离开区段前固定最后一条，避免尾段回跳
       if (rect.bottom <= viewportH * 0.42) {
         setActive(prev => (prev === lastIndex ? prev : lastIndex))
         return
@@ -126,7 +123,6 @@ export default function Features() {
   return (
     <section ref={sectionRef} className="features" id="features">
       <div className="features-pin">
-        {/* Section header */}
         <div className="container">
           <div className="section-header section-header--center">
             <p className="section-label">✦ How It Works</p>
@@ -137,10 +133,7 @@ export default function Features() {
           </div>
         </div>
 
-        {/* Main content */}
         <div className="container features-body">
-
-          {/* Left: feature list */}
           <div className="features-list">
             {FEATURES.map((f, i) => (
               <div
@@ -158,7 +151,6 @@ export default function Features() {
                   </div>
                 </div>
 
-                {/* Progress bar — mounts fresh each time active changes */}
                 <div className="features-progress">
                   {started && i === active && (
                     <div
@@ -173,23 +165,13 @@ export default function Features() {
             ))}
           </div>
 
-          {/* Right: preview */}
           <div className="features-preview-wrap">
             {FEATURES.map((f, i) => (
               <div
                 key={f.id}
                 className={`features-preview${i === active ? ' is-active' : ''}`}
               >
-                {f.lottie ? (
-                  <LottiePlayer
-                    autoplay
-                    loop
-                    src={f.lottie}
-                    className="features-lottie"
-                  />
-                ) : (
-                  <div className={`features-preview-card features-preview-card--${f.id}`} />
-                )}
+                <PreviewFor id={f.id} active={i === active} />
               </div>
             ))}
           </div>

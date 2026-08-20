@@ -38,7 +38,7 @@ export default function Hero() {
             </div>
           </div>
 
-          <a href="#" className="cta-btn">Start for Free</a>
+          <a href="#" className="cta-btn cta-btn--hero">Start for Free</a>
         </div>
 
         {/* Right Visual */}

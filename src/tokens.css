@@ -14,11 +14,18 @@
      Reference them via alias tokens below.
   ───────────────────────────────────────── */
 
-  /* Lime / Brand Green */
-  --palette-lime-400:   #b0f809;   /* primary brand accent */
-  --palette-lime-300:   #c7f22d;   /* lighter lime (badges) */
-  --palette-lime-dark:  #73a605;   /* dark lime — green text */
-  --palette-lime-darker:#3a5c00;   /* darkest lime — status text */
+  /* Lime — deprecated; kept only for legacy asset references */
+  --palette-lime-400:   #b0f809;
+  --palette-lime-300:   #c7f22d;
+  --palette-lime-dark:  #73a605;
+  --palette-lime-darker:#3a5c00;
+
+  /* Calm Emerald — AI match, metrics, success */
+  --palette-emerald-50:  #ecfdf5;
+  --palette-emerald-100: #d1fae5;
+  --palette-emerald-500: #10b981;
+  --palette-emerald-600: #059669;
+  --palette-emerald-700: #047857;
 
   /* Indigo / Secondary */
   --palette-indigo-400: #818cf8;
@@ -27,8 +34,8 @@
   --palette-indigo-700: #4338ca;
 
   /* Neutral / Gray */
-  --palette-black:      #09090b;
-  --palette-gray-900:   #111827;
+  --palette-black:      #0f172a;   /* obsidian slate navy */
+  --palette-gray-900:   #0f172a;
   --palette-gray-800:   #1c1917;
   --palette-gray-700:   #374151;
   --palette-gray-600:   #525558;
@@ -44,8 +51,8 @@
   --palette-surface:    var(--palette-white);   /* alias — identical to white */
   --palette-surface-muted:  #f4f4f5;
   --palette-surface-subtle: #fafafa;
-  --palette-bg:         #f9fafb;
-  --palette-bg-light:   #f6fee2;
+  --palette-bg:         #f8fafc;   /* ultra-clean cool gray */
+  --palette-bg-light:   #f8fafc;   /* no neon wash — same as page bg */
 
   /* State — Green (remote / success) */
   --palette-green-700:  #15803d;
@@ -86,8 +93,10 @@
   ───────────────────────────────────────── */
 
   /* ── Color / Brand ────────────────────── */
-  --color-main-default:   var(--palette-lime-400);      /* primary accent */
-  --color-main-disable:   var(--palette-gray-100);      /* disabled state  */
+  --color-main-default:   var(--palette-indigo-500);    /* tech indigo #6366F1 */
+  --color-main-disable:   var(--palette-gray-100);
+  --color-ai:             var(--palette-emerald-500);   /* calm emerald for AI / metrics */
+  --color-ai-bg:          var(--palette-emerald-50);
 
   /* ── Color / Surface ──────────────────── */
   --color-surface:        var(--palette-surface);        /* card / panel bg         */
@@ -106,9 +115,9 @@
   --color-text-second-2:      var(--palette-gray-400);    /* tertiary / muted text */
   --color-text-white:         var(--palette-white);       /* inverse text          */
   --color-text-placeholder:   var(--palette-gray-300);    /* placeholder           */
-  --color-text-green:         var(--palette-lime-dark);   /* green accent text     */
-  --color-text-green-dark:    var(--palette-lime-darker); /* dark green status     */
-  --color-text-on-green:      #424a34;                    /* text on lime surface  */
+  --color-text-green:         var(--palette-emerald-600); /* emerald accent text   */
+  --color-text-green-dark:    var(--palette-emerald-700); /* dark emerald status   */
+  --color-text-on-green:      #334155;                    /* body text on cool gray */
 
   /* ── Color / Secondary (Indigo) ──────── */
   --color-secondary-text:    var(--palette-indigo-500);  /* indigo labels     */
@@ -148,7 +157,7 @@
   --color-linkedin-bg:  var(--palette-linkedin-bg);
 
   /* ── Color / Live / Online ────────────── */
-  --color-live:         var(--palette-live);
+  --color-live:         var(--palette-emerald-500);
 
   /* ── Color / Hot badge ────────────────── */
   --color-hot-bg:       var(--palette-orange-100);
@@ -168,7 +177,7 @@
 
   /* ── Color / Border ───────────────────── */
   --color-border-light:   rgba(255, 255, 255, 0.64);
-  --color-border-default: #e8e9f0;
+  --color-border-default: #e2e8f0;   /* slate-200 */
 
   /* ── Color / Alpha whites (on dark surfaces) ── */
   --color-white-alpha-72: rgba(255, 255, 255, 0.72);   /* frosted glass bg       */
@@ -195,20 +204,20 @@
   --color-overlay-32:     rgba(0, 0, 0, 0.32);        /* modal backdrop          */
 
   /* ── Color / Live ring ────────────────── */
-  --color-live-ring:      rgba(34, 197, 94, 0.25);    /* online pulse ring      */
+  --color-live-ring:      rgba(16, 185, 129, 0.28);
 
-  /* ── Color / Brand Green Tints ────────── */
-  --color-main-tint-xs:  rgba(173, 245, 0,  0.06);   /* nav item hover         */
-  --color-main-tint-sm:  rgba(176, 249, 14, 0.12);   /* nav item active / chip */
-  --color-main-tint-md:  rgba(176, 249, 14, 0.18);   /* JS sort active bg      */
-  --color-main-tint-glow:rgba(176, 248, 9,  0.07);   /* feature glow           */
+  /* ── Color / Brand Indigo Tints ────────── */
+  --color-main-tint-xs:  rgba(99, 102, 241, 0.06);
+  --color-main-tint-sm:  rgba(99, 102, 241, 0.10);
+  --color-main-tint-md:  rgba(99, 102, 241, 0.16);
+  --color-main-tint-glow:rgba(99, 102, 241, 0.08);
 
-  /* ── Color / Brand Green Alpha (animations) ── */
-  --color-main-alpha-15: rgba(176, 248, 9,  0.15);   /* nova av bg             */
-  --color-main-alpha-20: rgba(176, 249, 14, 0.20);   /* pulse glow mid         */
-  --color-main-alpha-25: rgba(176, 249, 14, 0.25);   /* pulse glow             */
-  --color-main-alpha-30: rgba(176, 248, 9,  0.30);   /* nova av border / ring  */
-  --color-main-alpha-35: rgba(176, 249, 14, 0.35);   /* pulse ring strong      */
+  /* ── Color / Brand Indigo Alpha ── */
+  --color-main-alpha-15: rgba(99, 102, 241, 0.15);
+  --color-main-alpha-20: rgba(99, 102, 241, 0.20);
+  --color-main-alpha-25: rgba(99, 102, 241, 0.25);
+  --color-main-alpha-30: rgba(99, 102, 241, 0.30);
+  --color-main-alpha-35: rgba(99, 102, 241, 0.35);
 
 
   /* ─────────────────────────────────────────
@@ -353,8 +362,8 @@
   /* ─────────────────────────────────────────
      GRADIENTS
   ───────────────────────────────────────── */
-  --gradient-highlight: linear-gradient(104.68deg, #B0F90E 7.76%, #7BFFB4 98.83%);
-  --gradient-hero-glow: radial-gradient(ellipse at 60% 40%, rgba(176,248,9,0.18) 0%, transparent 70%);
+  --gradient-highlight: linear-gradient(104.68deg, #6366F1 7.76%, #818CF8 98.83%);
+  --gradient-hero-glow: radial-gradient(ellipse at 60% 40%, rgba(99,102,241,0.12) 0%, transparent 70%);
   --gradient-shimmer:   linear-gradient(90deg, transparent 0%, var(--color-white-alpha-32) 50%, transparent 100%);
   --gradient-stream-glow: linear-gradient(to top, var(--color-main-tint-sm), transparent);
 
@@ -366,7 +375,7 @@
   --btn-easing:          cubic-bezier(0.4, 0, 0.2, 1);
   --btn-hover-lift:      translateY(-2px);
   --btn-active-scale:    scale(0.96);
-  --btn-focus-ring:      0 0 0 3px var(--color-main-tint-md);
+  --btn-focus-ring:      0 0 0 3px var(--color-main-alpha-25);
   --btn-height-s:        18px;
   --btn-height-m:        30px;
   --btn-height-l:        36px;
@@ -388,11 +397,11 @@
   --icon-btn-loc-reset-radius-md:  7px;
   --icon-btn-loc-reset-radius-lg:  var(--radius-sm);
 
-  /* Variant — Primary (Acid Green) */
+  /* Variant — Primary (Tech Indigo) */
   --btn-primary-bg:             var(--color-main-default);
-  --btn-primary-color:          var(--color-text-default);
-  --btn-primary-hover-opacity:  0.9;
-  --btn-primary-hover-shadow:   0 12px 36px var(--color-main-tint-md);
+  --btn-primary-color:          var(--color-text-white);
+  --btn-primary-hover-opacity:  0.92;
+  --btn-primary-hover-shadow:   0 12px 28px rgba(99, 102, 241, 0.22);
 
   /* Variant — Dark (Black) */
   --btn-dark-bg:                var(--color-text-default);

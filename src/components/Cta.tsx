@@ -9,7 +9,7 @@ export default function Cta() {
           <p className="cta-body">
             Your AI agent is already searching. Join professionals who let JobNova do the work.
           </p>
-          <a href="#" className="cta-btn">Let AI Apply for Me</a>
+          <a href="#" className="cta-btn cta-btn--hero">Let AI Apply for Me</a>
         </div>
       </div>
     </section>
